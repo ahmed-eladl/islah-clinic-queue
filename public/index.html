@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مجمع الإصلاح الطبي - المتابعة المباشرة للدور</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #dc2626;
+      --hospital-green: #0f766e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    #app {
+      max-width: 480px;
+      width: 100%;
+    }
+    header {
+      background: var(--card-bg);
+      padding: 1.25rem;
+      border-radius: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      margin-bottom: 1rem;
+      text-align: center;
+      border-top: 4px solid var(--hospital-green);
+    }
+    .hospital-logo {
+      max-height: 60px;
+      width: auto;
+      margin-bottom: 0.5rem;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hospital-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--hospital-green);
+      margin: 0;
+    }
+    .hospital-subtitle {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+    .clinic-picker label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+      text-align: right;
+    }
+    select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border-radius: 0.6rem;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: var(--text-main);
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 0.35rem 0.9rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-top: 0.75rem;
+    }
+    .status-in-clinic { background: #dcfce7; color: #15803d; }
+    .status-break { background: #fef3c7; color: #b45309; }
+    .status-finished { background: #fee2e2; color: #b91c1c; }
+
+    .serving-card {
+      background: var(--card-bg);
+      border-radius: 1.25rem;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08);
+      margin-bottom: 1rem;
+      border-top: 6px solid var(--primary);
+    }
+    .serving-label {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    #serving-number {
+      font-size: 5.5rem;
+      font-weight: 900;
+      color: var(--primary);
+      line-height: 1;
+      margin: 0.75rem 0;
+      font-variant-numeric: tabular-nums;
+      transition: transform 0.15s ease;
+    }
+    .pulse {
+      transform: scale(1.08);
+    }
+    .doctor-info {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+    .room-info {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      margin-bottom: 1rem;
+    }
+    .card h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.15rem;
+      color: var(--text-main);
+    }
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    input[type="number"] {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      font-size: 1.25rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.6rem;
+      text-align: center;
+      font-weight: 700;
+      font-family: inherit;
+    }
+    button.btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      font-weight: 700;
+      font-family: inherit;
+    }
+    button.btn-primary:active {
+      background: var(--primary-dark);
+    }
+
+    #wait-result {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      display: none;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .wait-alert-normal {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+    }
+    .wait-alert-soon {
+      background: #fefce8;
+      border: 2px solid #facc15;
+      color: #854d0e;
+    }
+    .wait-alert-now {
+      background: #f0fdf4;
+      border: 2px solid #22c55e;
+      color: #15803d;
+    }
+
+    .sound-settings {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+      cursor: pointer;
+    }
+    .sound-settings input {
+      cursor: pointer;
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: blink 1.5s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .footer-links {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding: 1rem 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid #e2e8f0;
+    }
+    .footer-links a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .hospital-phone {
+      display: inline-block;
+      margin-top: 0.5rem;
+      direction: ltr;
+      font-weight: 700;
+      color: var(--hospital-green);
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <img src="/images/islah-medical-logo.png" alt="مجمع الإصلاح الطبي" class="hospital-logo" onerror="this.style.display='none'">
+      <h1 class="hospital-title">مجمع الإصلاح الطبي</h1>
+      <div class="hospital-subtitle">نموذج التوازن بين الكفاءة الطبية والرحمة الإنسانية</div>
+      
+      <div class="clinic-picker">
+        <label for="clinic-select">اختر العيادة:</label>
+        <select id="clinic-select">
+          <option value="pediatrics">عيادة الأطفال وحديثي الولادة (عيادة ١٠١)</option>
+          <option value="cardiology">عيادة القلب والأوعية الدموية (عيادة ٢٠٤)</option>
+          <option value="general">العيادة العامة والباطنة (عيادة ١٠٢)</option>
+          <option value="dental">عيادة طب وجراحة الأسنان (عيادة ٣٠٥)</option>
+        </select>
+      </div>
+      
+      <div>
+        <span id="status-badge" class="status-badge status-in-clinic">في العيادة (كشف نشط)</span>
+      </div>
+    </header>
+
+    <div class="serving-card">
+      <div class="serving-label">الرقم الحالي قيد الكشف</div>
+      <div id="serving-number">٠</div>
+      <div id="doctor-name" class="doctor-info">استشاري طب الأطفال</div>
+      <div id="clinic-room" class="room-info">عيادة ١٠١</div>
+    </div>
+
+    <div class="card" id="wait-calculator">
+      <h3>متابعة رقم تذكرتك</h3>
+      <p style="margin:0 0 0.5rem 0; font-size:0.9rem; color:var(--text-muted);">
+        أدخل رقم التذكرة المستلمة من الاستقبال لمعرفة دورك في الطابور:
+      </p>
+      <div class="input-row">
+        <input id="ticket-input" type="text" inputmode="numeric" placeholder="مثال: ١٥" />
+        <button id="check-wait-btn" class="btn-primary">تتبّع دوري</button>
+      </div>
+      <div id="wait-result"></div>
+
+      <!-- Silent by default: user must opt-in to sound -->
+      <label class="sound-settings">
+        <input type="checkbox" id="sound-toggle">
+        <span>تفعيل نغمة التنبيه الصوتي عند اقتراب دوري 🔔</span>
+      </label>
+    </div>
+
+    <div class="live-indicator">
+      <div class="dot" id="live-dot"></div>
+      <span id="connection-status">متصل مباشرة (التحديث فوري تلقائي)</span>
+    </div>
+
+    <div class="footer-links">
+      <div>مجمع الإصلاح الطبي - المنصورة</div>
+      <div>للاستفسار: <span class="hospital-phone">٠١٠٠٠٦٢٠٧٢٠</span></div>
+      <div style="margin-top: 0.75rem;">
+        <a href="/staff.html">دخول طاقم التمريض والأطباء &larr;</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Audio Chime (Silent by default, only plays if user checks the sound box)
+    let audioCtx = null;
+    function playChimeIfEnabled() {
+      const soundEnabled = document.getElementById('sound-toggle').checked;
+      if (!soundEnabled) return;
+
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.2); // A5
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.8);
+      } catch (e) {
+        console.warn('Audio note:', e);
+      }
+    }
+
+    // State
+    let currentServing = 0;
+    let avgMinutes = 10;
+    let eventSource = null;
+    let pollInterval = null;
+
+    const clinicSelect = document.getElementById('clinic-select');
+    const servingNumberEl = document.getElementById('serving-number');
+    const statusBadgeEl = document.getElementById('status-badge');
+    const clinicRoomEl = document.getElementById('clinic-room');
+    const doctorNameEl = document.getElementById('doctor-name');
+    const ticketInput = document.getElementById('ticket-input');
+    const checkWaitBtn = document.getElementById('check-wait-btn');
+    const waitResultEl = document.getElementById('wait-result');
+    const connStatusEl = document.getElementById('connection-status');
+    const liveDotEl = document.getElementById('live-dot');
+
+    // Parse URL parameter e.g. ?clinic=pediatrics
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialClinic = urlParams.get('clinic');
+    if (initialClinic && Array.from(clinicSelect.options).some(o => o.value === initialClinic)) {
+      clinicSelect.value = initialClinic;
+    }
+
+    // Connect to Real-time Stream + Fallback Poller
+    function connectToClinic(clinicId) {
+      if (eventSource) {
+        eventSource.close();
+      }
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+
+      connStatusEl.textContent = 'جارٍ الاتصال...';
+      liveDotEl.style.background = '#f59e0b';
+
+      // 1. Fetch immediate snapshot via REST
+      fetchClinicSnapshot(clinicId);
+
+      // 2. Real-time SSE connection
+      try {
+        eventSource = new EventSource(`/api/clinics/${encodeURIComponent(clinicId)}/events`);
+
+        eventSource.onopen = () => {
+          connStatusEl.textContent = 'متصل مباشرة (التحديث فوري)';
+          liveDotEl.style.background = '#16a34a';
+        };
+
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            handleIncomingUpdate(data);
+          } catch (e) {}
+        };
+
+        eventSource.onerror = () => {
+          connStatusEl.textContent = 'تحديث عبر المزامنة السريعة';
+          liveDotEl.style.background = '#16a34a';
+        };
+      } catch (e) {
+        console.warn('SSE fallback to polling:', e);
+      }
+
+      // 3. Fast backup poll every 1.5 seconds to guarantee 100% real-time sync even on mobile
+      pollInterval = setInterval(() => {
+        fetchClinicSnapshot(clinicId);
+      }, 1500);
+    }
+
+    async function fetchClinicSnapshot(clinicId) {
+      try {
+        const res = await fetch(`/api/clinics/${encodeURIComponent(clinicId)}/state`);
+        if (res.ok) {
+          const data = await res.json();
+          handleIncomingUpdate(data);
+        }
+      } catch (e) {}
+    }
+
+    // Helper to convert 0-9 to Arabic numerals ٠-٩
+    function toArabicDigits(str) {
+      if (str === null || str === undefined) return '';
+      const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+      return String(str).replace(/[0-9]/g, d => arabicDigits[d]);
+    }
+
+    // Helper to parse numeric inputs in either English 0-9 or Arabic ٠-٩
+    function parseArabicDigits(str) {
+      if (!str) return 0;
+      const arabicDigitsMap = {
+        '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+        '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+      };
+      const normalized = String(str).trim().replace(/[٠-٩]/g, d => arabicDigitsMap[d]);
+      return parseInt(normalized, 10);
+    }
+
+    function handleIncomingUpdate(data) {
+      if (!data) return;
+      const newNum = typeof data.currentServing !== 'undefined' ? data.currentServing : data.servingNumber;
+      
+      if (typeof newNum !== 'undefined') {
+        const oldNum = currentServing;
+        currentServing = newNum;
+        servingNumberEl.textContent = toArabicDigits(currentServing);
+
+        if (newNum !== oldNum && oldNum !== 0) {
+          servingNumberEl.classList.add('pulse');
+          setTimeout(() => servingNumberEl.classList.remove('pulse'), 300);
+          playChimeIfEnabled();
+        }
+      }
+
+      if (data.room) clinicRoomEl.textContent = toArabicDigits(data.room);
+      if (data.doctorName) doctorNameEl.textContent = data.doctorName;
+      if (data.averageServiceMinutes) avgMinutes = data.averageServiceMinutes;
+      if (data.status) updateDoctorStatus(data.status);
+
+      calculateWait();
+    }
+
+    function updateDoctorStatus(status) {
+      statusBadgeEl.className = 'status-badge';
+      if (status === 'In Clinic' || status === 'في العيادة') {
+        statusBadgeEl.textContent = 'في العيادة (كشف نشط)';
+        statusBadgeEl.classList.add('status-in-clinic');
+      } else if (status === 'Brief Break' || status === 'استراحة قصيرة') {
+        statusBadgeEl.textContent = 'استراحة قصيرة للطبيب';
+        statusBadgeEl.classList.add('status-break');
+      } else if (status === 'Finished' || status === 'انتهت العيادة') {
+        statusBadgeEl.textContent = 'انتهت فترة العيادة';
+        statusBadgeEl.classList.add('status-finished');
+      } else {
+        statusBadgeEl.textContent = status;
+        statusBadgeEl.classList.add('status-in-clinic');
+      }
+    }
+
+    function formatWaitTimeArabic(totalMinutes) {
+      if (!totalMinutes || totalMinutes <= 0) return 'أقل من دقيقة';
+      
+      const hours = Math.floor(totalMinutes / 60);
+      const mins = totalMinutes % 60;
+      
+      const formatHours = (h) => {
+        if (h === 1) return 'ساعة';
+        if (h === 2) return 'ساعتان';
+        if (h >= 3 && h <= 10) return `${toArabicDigits(h)} ساعات`;
+        return `${toArabicDigits(h)} ساعة`;
+      };
+
+      const formatMins = (m) => {
+        if (m === 1) return 'دقيقة واحدة';
+        if (m === 2) return 'دقيقتان';
+        if (m >= 3 && m <= 10) return `${toArabicDigits(m)} دقائق`;
+        return `${toArabicDigits(m)} دقيقة`;
+      };
+
+      if (hours > 0 && mins > 0) {
+        return `${formatHours(hours)} و ${formatMins(mins)}`;
+      } else if (hours > 0) {
+        return formatHours(hours);
+      } else {
+        return formatMins(mins);
+      }
+    }
+
+    function formatPatientsCountArabic(count) {
+      if (count === 1) return 'مريض واحد فقط';
+      if (count === 2) return 'مريضان فقط';
+      if (count >= 3 && count <= 10) return `${toArabicDigits(count)} مرضى`;
+      return `${toArabicDigits(count)} مريض`;
+    }
+
+    function calculateWait() {
+      const ticketVal = parseArabicDigits(ticketInput.value);
+      if (isNaN(ticketVal) || ticketVal <= 0) {
+        waitResultEl.style.display = 'none';
+        return;
+      }
+
+      waitResultEl.style.display = 'block';
+      const ahead = ticketVal - currentServing;
+
+      if (ahead === 0) {
+        waitResultEl.className = 'wait-alert-now';
+        waitResultEl.innerHTML = `<strong>🔔 حان دورك الآن!</strong><br>يرجى الدخول فوراً إلى <strong>${clinicRoomEl.textContent}</strong> للكشف.`;
+        playChimeIfEnabled();
+      } else if (ahead > 0 && ahead <= 2) {
+        const estTime = formatWaitTimeArabic(ahead * avgMinutes);
+        const countText = formatPatientsCountArabic(ahead);
+        waitResultEl.className = 'wait-alert-soon';
+        waitResultEl.innerHTML = `<strong>⚠️ استعد.. دورك قادم قريباً جداً!</strong><br>يتبقى أمامك <strong>${countText}</strong> (حوالي <strong>${estTime}</strong>).<br>يرجى التواجد أمام باب العيادة.`;
+      } else if (ahead > 2) {
+        const estTime = formatWaitTimeArabic(ahead * avgMinutes);
+        const countText = formatPatientsCountArabic(ahead);
+        waitResultEl.className = 'wait-alert-normal';
+        waitResultEl.innerHTML = `<strong>يتبقى أمامك ${countText} في قائمة الانتظار</strong><br>الوقت المتوقع: حوالي <strong>${estTime}</strong>.<br><small style="color:var(--text-muted)">يمكنك الجلوس بالخارج، وسيتحدث رقمك على الشاشة تلقائياً لحظة بلحظة.</small>`;
+      } else {
+        waitResultEl.className = 'wait-alert-normal';
+        waitResultEl.innerHTML = `تذكرة رقم (${toArabicDigits(ticketVal)}) تم النداء عليها مسبقاً.<br>إذا تأخرت عن موعدك، يرجى مراجعة تمريض العيادة.`;
+      }
+    }
+
+    clinicSelect.addEventListener('change', () => {
+      const selected = clinicSelect.value;
+      const newUrl = `${window.location.pathname}?clinic=${encodeURIComponent(selected)}`;
+      window.history.replaceState(null, '', newUrl);
+      connectToClinic(selected);
+    });
+
+    checkWaitBtn.addEventListener('click', () => {
+      calculateWait();
+    });
+
+    ticketInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        calculateWait();
+      }
+    });
+
+    // Start
+    connectToClinic(clinicSelect.value);
+  </script>
+</body>
+</html>

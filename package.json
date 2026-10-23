@@ -1,0 +1,28 @@
+{
+  "name": "live_clinic_queue_tracker",
+  "version": "1.0.0",
+  "description": "Live Clinic Queue Tracker - 100% Free Multi-Clinic Hospital & Clinic Queue Management Web Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/m1_domain_auth_persistence.test.js",
+    "test:m1": "node --test tests/m1_domain_auth_persistence.test.js",
+    "test:all": "node --test tests/**/*.test.js"
+  },
+  "keywords": [
+    "clinic",
+    "queue",
+    "tracker",
+    "real-time",
+    "hospital",
+    "sse"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^5.3.0"
+  }
+}

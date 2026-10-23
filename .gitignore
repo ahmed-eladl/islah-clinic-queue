@@ -1,0 +1,7 @@
+node_modules/
+.agents/
+data_test_*/
+scratch/
+scratch_islah.html
+.DS_Store
+*.log

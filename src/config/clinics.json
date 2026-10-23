@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "clinics": [
+    {
+      "id": "pediatrics",
+      "name": "عيادة الأطفال وحديثي الولادة",
+      "room": "عيادة 101",
+      "doctorName": "استشاري طب الأطفال",
+      "staffUsername": "pediatrics",
+      "salt": "c2d1c137d2634b659132272bbbdc2901",
+      "passwordHash": "34f4d6d25a3f76f762d81297ee21f2edb4b51a6e581857593e32ee2f228740073a7a174024902af254370a0381d34c631bfb0cff45e7b58975c71ec2ac6d2311",
+      "averageServiceMinutes": 8
+    },
+    {
+      "id": "cardiology",
+      "name": "عيادة القلب والأوعية الدموية",
+      "room": "عيادة 204",
+      "doctorName": "استشاري أمراض القلب",
+      "staffUsername": "cardiology",
+      "salt": "043c6f3c63073a73a6f3b8dab327e770",
+      "passwordHash": "a8045f3953f7d1311d25412ffc278b260091ced550c1bc366bd39ca9d0d3b388414017644a776b8bf4a85ec263488fd04d47d22167d6a43c05060f4353e675a8",
+      "averageServiceMinutes": 12
+    },
+    {
+      "id": "general",
+      "name": "العيادة العامة والباطنة",
+      "room": "عيادة 102",
+      "doctorName": "أخصائي الباطنة العامة",
+      "staffUsername": "general",
+      "salt": "1c53d5047ac21c1ff801f6ee8f586cdd",
+      "passwordHash": "ea5a14824a3b6866c35126f1796c842ffd6d073df008b7a2e6d71a2ec0bda1000a8f9112671e3ee62a5b51fa2d6d9df06f34088fe53ee4b9989fa30ea84dcfd0",
+      "averageServiceMinutes": 7
+    },
+    {
+      "id": "dental",
+      "name": "عيادة طب وجراحة الأسنان",
+      "room": "عيادة 305",
+      "doctorName": "أخصائي طب وجراحة الأسنان",
+      "staffUsername": "dental",
+      "salt": "ee07c69fb445abaca0cc09635e15aa7e",
+      "passwordHash": "e3b6a2ebc42446966d60338c356ea702cf47d05ad2b65cc57f4461e46a6ae0975149398c4a504dd514d79e7becabe8aad6b4d02324a3e5a2a608daa3b911e711",
+      "averageServiceMinutes": 15
+    }
+  ]
+}

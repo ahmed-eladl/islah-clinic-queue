@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="مجمع الإصلاح الطبي - لوحة تحكم التمريض والأطباء لإدارة قوائم الانتظار">
+  <title>مجمع الإصلاح الطبي - لوحة تحكم العيادة</title>
+  <link rel="stylesheet" href="css/staff_controller.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    }
+    .staff-profile {
+      text-align: right;
+    }
+    .form-group label {
+      text-align: right;
+      display: block;
+    }
+  </style>
+  <script src="js/qr_generator.js" defer></script>
+  <script src="js/staff_controller.js" defer></script>
+</head>
+<body>
+  <div id="app" class="staff-app">
+    <!-- Global Dismissible Notification / Error Banner -->
+    <div id="error-banner" class="banner banner-error" role="alert" hidden>
+      <span id="error-message"></span>
+      <button type="button" id="btn-close-banner" aria-label="إغلاق التنبيه">&times;</button>
+    </div>
+
+    <!-- View A: Staff Login Screen (#login-view / #login-section) -->
+    <div id="login-view" class="view-container">
+      <section id="login-section" class="card login-card" aria-label="تسجيل دخول التمريض">
+        <div class="login-header">
+          <img src="/images/islah-medical-logo.png" alt="مجمع الإصلاح الطبي" style="max-height: 65px; width: auto; margin-bottom: 0.75rem; display: block; margin-left: auto; margin-right: auto;" onerror="this.style.display='none'">
+          <h1 style="color: #0f766e; font-size: 1.5rem; margin-bottom: 0.25rem;">مجمع الإصلاح الطبي</h1>
+          <p class="subtitle" style="color: #64748b; font-size: 0.95rem;">لوحة تحكم التمريض لإدارة دور العيادات</p>
+        </div>
+
+        <form id="login-form" novalidate style="margin-top: 1.5rem;">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="clinic-select" style="font-weight: 600; margin-bottom: 0.35rem;">اختر العيادة:</label>
+            <select id="clinic-select" name="clinicId" required style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; font-family: inherit;">
+              <option value="" disabled selected>-- اختر محطة العيادة --</option>
+              <option value="pediatrics">عيادة الأطفال وحديثي الولادة (عيادة 101)</option>
+              <option value="cardiology">عيادة القلب والأوعية الدموية (عيادة 204)</option>
+              <option value="general">العيادة العامة والباطنة (عيادة 102)</option>
+              <option value="dental">عيادة طب وجراحة الأسنان (عيادة 305)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="username" style="font-weight: 600; margin-bottom: 0.35rem;">اسم المستخدم:</label>
+            <input type="text" id="username" name="username" placeholder="مثال: pediatrics" autocomplete="username" style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; font-family: inherit; direction: ltr; text-align: right;">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label for="password" style="font-weight: 600; margin-bottom: 0.35rem;">كلمة المرور:</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="أدخل كلمة المرور" style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; font-family: inherit; direction: ltr; text-align: right;">
+          </div>
+
+          <button type="submit" id="btn-login" class="btn btn-primary btn-block" style="width: 100%; padding: 0.85rem; font-size: 1.05rem; font-weight: 700; border-radius: 0.5rem; background: #0284c7; color: white; border: none; cursor: pointer;">تسجيل الدخول</button>
+          <div id="login-error" class="alert alert-danger" role="alert" hidden style="margin-top: 1rem; color: #dc2626; font-size: 0.9rem;"></div>
+        </form>
+      </section>
+    </div>
+
+    <!-- View B: Queue Controller Dashboard (#dashboard-view / #controller) -->
+    <div id="dashboard-view" class="view-container" hidden>
+      <!-- Navigation & Active Clinic Profile -->
+      <header class="dashboard-header header">
+        <div id="active-staff-profile" class="staff-profile" style="display: flex; align-items: center; gap: 0.75rem;">
+          <img src="/images/islah-medical-logo.png" alt="مجمع الإصلاح الطبي" style="max-height: 48px; width: auto;" onerror="this.style.display='none'">
+          <div>
+            <h2 id="clinic-name" style="font-size: 1.35rem; margin: 0;">عيادة الأطفال وحديثي الولادة</h2>
+            <div class="clinic-sub-info" style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.25rem;">
+              <div id="clinic-id" class="badge badge-id">pediatrics</div>
+              <span id="clinic-room" class="room-tag">عيادة 101</span>
+              <span id="doctor-name" class="doctor-tag">استشاري طب الأطفال</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div id="connection-status" class="conn-badge conn-online" title="حالة الاتصال المباشر">
+            <span class="conn-dot"></span>
+            <span id="connection-status-text">متصل مباشرة</span>
+          </div>
+          <button type="button" id="btn-logout" class="btn btn-sm btn-outline">تسجيل الخروج</button>
+        </div>
+      </header>
+
+      <!-- Main Controller Card -->
+      <main id="controller" class="card controller-card" data-clinic-id="pediatrics">
+        <!-- Serving Number Display -->
+        <div class="serving-card" style="text-align: center; padding: 1.5rem 0;">
+          <span class="serving-label" style="font-size: 0.95rem; font-weight: 700; color: #64748b;">الرقم الحالي قيد الكشف</span>
+          <div class="serving-display" id="serving-number" data-serving="0" aria-live="polite" style="font-size: 5.5rem; font-weight: 900; color: #0284c7; line-height: 1.1;">٠</div>
+        </div>
+
+        <!-- Doctor Consultation Status Section (Feature F13) -->
+        <div class="status-section" style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; justify-content: space-between;">
+          <div class="status-header" style="display: flex; align-items: center; gap: 0.5rem;">
+            <label for="status-select" style="font-weight: 700;">حالة الطبيب:</label>
+            <div id="status-badge" class="status-badge status-in-clinic" data-status="In Clinic">في العيادة (كشف نشط)</div>
+          </div>
+          <select id="status-select" name="doctorStatus" aria-label="اختر حالة الطبيب" style="padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-family: inherit; font-weight: 600;">
+            <option value="In Clinic">في العيادة (كشف نشط)</option>
+            <option value="Brief Break">استراحة قصيرة</option>
+            <option value="Finished">انتهت العيادة</option>
+          </select>
+        </div>
+
+        <!-- Touch Action Buttons Grid (Features F11 & F12) -->
+        <div class="button-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+          <button type="button" id="btn-next" class="btn-action btn-next btn-touch" data-action="next" data-debounced="false" style="grid-column: span 2; font-size: 1.5rem; padding: 1.25rem;">+١ التالي (استدعاء مريض)</button>
+          <button type="button" id="btn-recall" class="btn-action btn-recall btn-touch" data-action="recall" style="font-size: 1.15rem; padding: 1rem;">-١ تراجع</button>
+          <button type="button" id="btn-skip" class="btn-action btn-skip btn-touch" data-action="skip" style="font-size: 1.15rem; padding: 1rem;">تخطي</button>
+          <button type="button" id="btn-reset" class="btn-action btn-reset btn-touch" data-action="reset" style="grid-column: span 2; padding: 0.75rem; font-size: 1rem;">إعادة ضبط الدور</button>
+        </div>
+
+        <!-- Skipped Tickets Section -->
+        <div id="skipped-container" class="skipped-section" style="margin-top: 1.25rem;">
+          <div class="skipped-header">
+            <h4>التذاكر المتخطاة (الغياب)</h4>
+            <span id="skipped-count" class="badge-count">0</span>
+          </div>
+          <div id="skipped-list" class="skipped-list">
+            <span id="skipped-empty" class="text-muted">لا توجد أرقام متخطاة</span>
+          </div>
+        </div>
+
+        <!-- QR Placard & Patient Share Section (Features F13, F14) -->
+        <section id="placard-section" class="share-section placard-card" aria-label="لافتة تتبع المريض" style="margin-top: 1.5rem; text-align: center;">
+          <div class="placard-header">
+            <h3 style="color: #0f766e; margin-bottom: 0.25rem;">لافتة متابعة الدور للجوال (QR Code)</h3>
+            <p style="color: #64748b; font-size: 0.9rem;">امسح الرمز بكاميرا الجوال لمتابعة الدور مباشرة من خارج المستشفى.</p>
+          </div>
+
+          <!-- Inline Vector SVG QR Container -->
+          <div id="qr-container" class="qr-container" aria-live="polite" style="margin: 1rem auto; display: flex; justify-content: center;"></div>
+
+          <div class="placard-meta" style="margin-bottom: 1rem;">
+            <div class="placard-clinic-title" id="onscreen-clinic-name" style="font-weight: 700; font-size: 1.1rem;">عيادة الأطفال</div>
+            <div class="placard-room" id="onscreen-room-number" style="color: #64748b;">عيادة 101</div>
+            <div class="placard-url" style="margin-top: 0.5rem;">
+              <a id="patient-link" href="/?clinic=pediatrics" target="_blank" rel="noopener" style="color: #0284c7; font-weight: 600; text-decoration: none;">فتح شاشة المريض ↗</a>
+            </div>
+          </div>
+
+          <div class="placard-actions no-print" style="display: flex; gap: 0.75rem; justify-content: center;">
+            <button type="button" id="btn-copy-link" class="btn btn-secondary">📋 نسخ الرابط</button>
+            <button type="button" id="btn-print-placard" class="btn btn-secondary">🖨️ طباعة لافتة العيادة</button>
+          </div>
+          <span id="copy-feedback" class="copy-feedback" hidden style="display: block; margin-top: 0.5rem; color: #16a34a; font-weight: 600;">تم نسخ الرابط بنجاح!</span>
+        </section>
+      </main>
+
+      <!-- Keyboard Shortcuts Legend Footer (Feature F15) -->
+      <footer class="shortcuts-legend no-print" style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: #64748b;">
+        <span><strong>اختصارات لوحة المفاتيح:</strong> <kbd>مسافة Space</kbd> التالي &bull; <kbd>&larr;</kbd> تراجع &bull; <kbd>S</kbd> تخطي &bull; <kbd>C</kbd> جرس &bull; <kbd>R</kbd> إعادة ضبط</span>
+      </footer>
+    </div>
+
+    <!-- 2-Step Reset Safety Confirmation Modal (Feature F12) -->
+    <div id="reset-modal" class="modal modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+      <div class="modal-dialog modal-content modal-card" style="text-align: center;">
+        <div class="modal-icon-warning" style="font-size: 2.5rem; margin-bottom: 0.5rem;">⚠️</div>
+        <h3 id="modal-title" style="margin-bottom: 0.5rem;">تأكيد إعادة ضبط الدور</h3>
+        <p>هل أنت متأكد من رغبتك في تصفير عداد الانتظار لهذه العيادة إلى <strong>0</strong>؟</p>
+        <p class="modal-warning" style="font-size: 0.85rem; color: #d97706; margin-top: 0.5rem;">سيؤدي هذا إلى مسح قائمة التذاكر المتخطاة لليوم، مع الحفاظ على حالة الطبيب.</p>
+        <div class="modal-actions" style="margin-top: 1.25rem; display: flex; gap: 0.75rem; justify-content: center;">
+          <button type="button" id="cancel-reset-btn" class="btn btn-outline" style="padding: 0.6rem 1.25rem;">إلغاء</button>
+          <button type="button" id="confirm-reset-btn" class="btn btn-danger" style="padding: 0.6rem 1.25rem; background: #dc2626; color: white; border: none; border-radius: 0.5rem; font-weight: 700; cursor: pointer;">نعم، أعد الضبط</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Printable Clinic Poster Section (Active under @media print) -->
+    <div id="print-placard" class="print-placard">
+      <img src="/images/islah-medical-logo.png" alt="مجمع الإصلاح الطبي" style="max-height: 80px; width: auto; margin-bottom: 0.5rem;" onerror="this.style.display='none'">
+      <div class="poster-badge" style="font-weight: 800; color: #0f766e;">مجمع الإصلاح الطبي - المتابعة المباشرة</div>
+      <h1 id="placard-clinic-name" class="placard-clinic-title">عيادة الأطفال وحديثي الولادة</h1>
+      <div id="placard-room" class="placard-room">عيادة 101</div>
+      <div class="instruction-main" style="font-size: 1.35rem; font-weight: 800; margin: 1rem 0 0.5rem;">امسح الرمز بكاميرا جوالك لمتابعة دورك مباشرة 📱</div>
+      <div class="instruction-sub" style="color: #475569; font-size: 1.05rem;">يمكنك الجلوس بالخارج أو بالمقهى، وسيظهر رقمك مباشرة على هاتفك دون الحاجة للجلوس في الزحام.</div>
+      <div id="placard-qr" style="margin: 1.5rem auto;"></div>
+      <div id="placard-url" class="placard-url" style="direction: ltr; font-weight: 700; color: #0284c7;">http://localhost:3000/?clinic=pediatrics</div>
+      <div class="print-footer" style="margin-top: 1.5rem; font-size: 0.9rem; color: #64748b;">مجمع الإصلاح الطبي - المنصورة &bull; للاستفسار: 01000620720</div>
+    </div>
+  </div>
+</body>
+</html>

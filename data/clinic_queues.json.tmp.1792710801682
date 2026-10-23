@@ -1,0 +1,39 @@
+{
+  "lastGlobalUpdate": "2026-10-22T23:13:21.682Z",
+  "clinics": {
+    "pediatrics": {
+      "id": "pediatrics",
+      "name": "Pediatrics Clinic",
+      "currentServing": 17,
+      "status": "Brief Break",
+      "skipped": [
+        5
+      ],
+      "lastUpdated": "2026-10-22T23:13:21.657Z"
+    },
+    "cardiology": {
+      "id": "cardiology",
+      "name": "Cardiology Clinic",
+      "currentServing": 7,
+      "status": "In Clinic",
+      "skipped": [],
+      "lastUpdated": "2026-10-22T23:13:21.682Z"
+    },
+    "general": {
+      "id": "general",
+      "name": "General Medicine",
+      "currentServing": 0,
+      "status": "In Clinic",
+      "skipped": [],
+      "lastUpdated": "2026-10-22T23:13:21.589Z"
+    },
+    "dental": {
+      "id": "dental",
+      "name": "Dental Clinic",
+      "currentServing": 0,
+      "status": "In Clinic",
+      "skipped": [],
+      "lastUpdated": "2026-10-22T23:13:21.597Z"
+    }
+  }
+}

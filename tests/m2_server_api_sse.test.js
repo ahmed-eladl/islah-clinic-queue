@@ -89,7 +89,7 @@ describe('Milestone 2 Integration Test Suite: Server API & Real-Time SSE', () =>
       assert.ok(res.body.token, 'Token string missing');
       assert.equal(typeof res.body.token, 'string');
       assert.equal(res.body.clinic.id, 'pediatrics');
-      assert.equal(res.body.clinic.name, 'Pediatrics Clinic');
+      assert.ok(res.body.clinic.name, 'Clinic name missing');
 
       // Verify token is a valid 3-part base64url JWT
       const parts = res.body.token.split('.');

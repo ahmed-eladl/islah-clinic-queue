@@ -124,7 +124,10 @@ function createClinicRouter(queueStore) {
    * GET /api/clinics
    * Returns array of public clinic summaries
    */
-  router.get('/', (req, res) => {
+  router.get('/', async (req, res) => {
+    if (typeof queueStore.syncCloud === 'function') {
+      await queueStore.syncCloud(false);
+    }
     const all = queueStore.getAllClinics();
     const summaries = all.map(c => ({
       id: c.clinicId || c.id,
@@ -151,7 +154,10 @@ function createClinicRouter(queueStore) {
    * GET /api/clinics/:clinicId/state
    * Returns queue state snapshot for a specific clinic
    */
-  router.get('/:clinicId/state', (req, res) => {
+  router.get('/:clinicId/state', async (req, res) => {
+    if (typeof queueStore.syncCloud === 'function') {
+      await queueStore.syncCloud(false);
+    }
     const clinicId = String(req.params.clinicId).toLowerCase().trim();
     if (!queueStore.hasClinic(clinicId)) {
       return res.status(404).json({
@@ -174,7 +180,10 @@ function createClinicRouter(queueStore) {
    * GET /api/clinics/:clinicId
    * Alias returning full clinic state
    */
-  router.get('/:clinicId', (req, res) => {
+  router.get('/:clinicId', async (req, res) => {
+    if (typeof queueStore.syncCloud === 'function') {
+      await queueStore.syncCloud(false);
+    }
     const clinicId = String(req.params.clinicId).toLowerCase().trim();
     if (!queueStore.hasClinic(clinicId)) {
       return res.status(404).json({

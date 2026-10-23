@@ -182,9 +182,31 @@ class QueueStore {
   }
 
   /**
+   * Refreshes the in-memory store from persistence adapter if cloud persistence is active
+   */
+  async syncCloud(force = false) {
+    if (this.persistenceAdapter && this.persistenceAdapter.isCloud) {
+      try {
+        const fresh = typeof this.persistenceAdapter.loadState === 'function'
+          ? await this.persistenceAdapter.loadState(force)
+          : await this.persistenceAdapter.read();
+        if (fresh && fresh.clinics) {
+          this.importSnapshot(fresh);
+        }
+      } catch (err) {
+        console.warn('[QueueStore] syncCloud error:', err.message);
+      }
+    }
+  }
+
+  /**
    * Core mutation executor with rollback and persistence coordination
    */
   async mutateClinic(clinicId, actionName, mutator) {
+    if (this.persistenceAdapter && this.persistenceAdapter.isCloud) {
+      await this.syncCloud(true);
+    }
+
     const clinic = this.clinics.get(clinicId);
     if (!clinic) {
       throw new NotFoundError(`Clinic not found: '${clinicId}'`);

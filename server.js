@@ -12,6 +12,7 @@ const fs = require('node:fs');
 const { config, getAllClinics } = require('./src/config/app_config.js');
 const { QueueStore } = require('./src/domain/queue_store.js');
 const { AtomicFileAdapter } = require('./src/persistence/atomic_file_adapter.js');
+const { createPersistenceAdapter } = require('./src/persistence/storage_factory.js');
 const authRouter = require('./src/routes/auth_routes.js');
 const { createClinicRouter } = require('./src/routes/clinic_routes.js');
 
@@ -155,7 +156,7 @@ async function start(options = {}) {
   }
 
   // Initialize persistence adapter and queue store
-  const primaryAdapter = new AtomicFileAdapter(dataFile);
+  const primaryAdapter = options.adapter || createPersistenceAdapter({ dataFile, ...options });
   const adapter = mirrorFile ? new DualPersistenceAdapter(primaryAdapter, mirrorFile) : primaryAdapter;
 
   queueStoreInstance = new QueueStore(dataFile, adapter);

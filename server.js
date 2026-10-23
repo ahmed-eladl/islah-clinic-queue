@@ -29,6 +29,18 @@ const activeSockets = new Set();
 function createApp(queueStore) {
   const expressApp = express();
 
+  // 0. Auto-sync with cloud persistence on incoming requests (critical for multi-instance serverless)
+  expressApp.use(async (req, res, next) => {
+    if (queueStore && typeof queueStore.syncCloud === 'function') {
+      try {
+        await queueStore.syncCloud(false);
+      } catch (err) {
+        console.warn('[Server] Auto-sync error:', err.message);
+      }
+    }
+    next();
+  });
+
   // 1. Zero-dependency CORS Headers & OPTIONS Preflight (Feature F07-5)
   expressApp.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', config.corsOrigin || '*');
@@ -38,6 +50,14 @@ function createApp(queueStore) {
     if (req.method === 'OPTIONS') {
       return res.status(204).end();
     }
+    next();
+  });
+
+  // Strict zero-cache policy for real-time queue API to prevent stale data on CDN/proxies
+  expressApp.use('/api', (req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     next();
   });
 

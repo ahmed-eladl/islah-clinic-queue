@@ -235,7 +235,9 @@
 
   async function fetchClinicState(clinicId) {
     try {
-      const res = await fetch(`/api/clinics/${encodeURIComponent(clinicId)}/state`);
+      const res = await fetch(`/api/clinics/${encodeURIComponent(clinicId)}/state?t=${Date.now()}`, {
+        cache: 'no-store'
+      });
       if (res.ok) {
         const data = await res.json();
         updateDashboardUI(data);
@@ -301,11 +303,16 @@
 
     // 1. Serving Number
     if (typeof data.currentServing !== 'undefined') {
-      State.currentServing = data.currentServing;
-      const servingEl = document.getElementById('serving-number');
-      if (servingEl) {
-        servingEl.textContent = toArabicDigits(data.currentServing);
-        servingEl.dataset.serving = String(data.currentServing);
+      const isRecentMutation = State.lastMutationTime && (Date.now() - State.lastMutationTime < 3500);
+      if (isRecentMutation && data.currentServing < State.currentServing) {
+        // Ignore stale backward-moving poll from out-of-sync container right after mutation
+      } else {
+        State.currentServing = data.currentServing;
+        const servingEl = document.getElementById('serving-number');
+        if (servingEl) {
+          servingEl.textContent = toArabicDigits(data.currentServing);
+          servingEl.dataset.serving = String(data.currentServing);
+        }
       }
     }
 
@@ -403,6 +410,14 @@
   async function handleNextPatient() {
     if (State.isNextBusy) return;
     State.isNextBusy = true;
+    State.lastMutationTime = Date.now();
+
+    const btnNext = document.getElementById('btn-next');
+    if (btnNext) {
+      btnNext.disabled = true;
+      btnNext.style.opacity = '0.6';
+      btnNext.style.cursor = 'wait';
+    }
 
     const prevServing = State.currentServing;
     State.currentServing = prevServing + 1;
@@ -424,11 +439,26 @@
       showErrorBanner('فشل في مناداة المريض التالي: ' + err.message);
     } finally {
       State.isNextBusy = false;
+      if (btnNext) {
+        btnNext.disabled = false;
+        btnNext.style.opacity = '1';
+        btnNext.style.cursor = 'pointer';
+      }
     }
   }
 
   // --- Instant Optimistic Recall Handler ---
   async function handleRecall() {
+    if (State.isRecallBusy) return;
+    State.isRecallBusy = true;
+    State.lastMutationTime = Date.now();
+
+    const btnRecall = document.getElementById('btn-recall');
+    if (btnRecall) {
+      btnRecall.disabled = true;
+      btnRecall.style.opacity = '0.6';
+    }
+
     const prevServing = State.currentServing;
     State.currentServing = Math.max(0, prevServing - 1);
     const servingEl = document.getElementById('serving-number');
@@ -447,15 +477,37 @@
       State.currentServing = prevServing;
       if (servingEl) servingEl.textContent = toArabicDigits(prevServing);
       showErrorBanner('فشل في التراجع: ' + err.message);
+    } finally {
+      State.isRecallBusy = false;
+      if (btnRecall) {
+        btnRecall.disabled = false;
+        btnRecall.style.opacity = '1';
+      }
     }
   }
 
   // --- Skip Handler ---
   async function handleSkip() {
+    if (State.isSkipBusy) return;
+    State.isSkipBusy = true;
+    State.lastMutationTime = Date.now();
+
+    const btnSkip = document.getElementById('btn-skip');
+    if (btnSkip) {
+      btnSkip.disabled = true;
+      btnSkip.style.opacity = '0.6';
+    }
+
     try {
       await apiMutate('skip');
     } catch (err) {
       showErrorBanner('فشل في تخطي المريض: ' + err.message);
+    } finally {
+      State.isSkipBusy = false;
+      if (btnSkip) {
+        btnSkip.disabled = false;
+        btnSkip.style.opacity = '1';
+      }
     }
   }
 

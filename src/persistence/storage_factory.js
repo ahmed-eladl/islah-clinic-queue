@@ -7,6 +7,7 @@
 const path = require('node:path');
 const { AtomicFileAdapter } = require('./atomic_file_adapter.js');
 const { UpstashRedisAdapter } = require('./upstash_adapter.js');
+const { SupabaseAdapter } = require('./supabase_adapter.js');
 const { QueueStore } = require('../domain/queue_store.js');
 const { config } = require('../config/app_config.js');
 
@@ -28,7 +29,14 @@ function createPersistenceAdapter(options = {}) {
     return upstash;
   }
 
-  // 2. Firebase RTDB auto-detection
+  // 2. Supabase PostgreSQL auto-detection
+  const supabase = new SupabaseAdapter(options);
+  if (supabase.isConfigured()) {
+    console.log('[StorageFactory] Using Supabase PostgreSQL cloud persistence.');
+    return supabase;
+  }
+
+  // 3. Firebase RTDB auto-detection
   if (FirebaseAdapter && (process.env.FIREBASE_DATABASE_URL || options.databaseUrl)) {
     console.log('[StorageFactory] Using Firebase Realtime Database cloud persistence.');
     const fb = new FirebaseAdapter(options);

@@ -375,10 +375,10 @@
     const countEl = document.getElementById('skipped-count');
     if (!container) return;
 
-    if (countEl) countEl.textContent = skipped.length;
+    if (countEl) countEl.textContent = toArabicDigits(skipped.length);
 
     if (!skipped || skipped.length === 0) {
-      container.innerHTML = '<span id="skipped-empty" class="text-muted">No skipped tickets</span>';
+      container.innerHTML = '<span id="skipped-empty" class="text-muted">لا توجد أرقام متخطاة</span>';
       return;
     }
 
@@ -386,7 +386,7 @@
     skipped.forEach(num => {
       const badge = document.createElement('span');
       badge.className = 'skipped-badge';
-      badge.textContent = `#${num}`;
+      badge.textContent = `تذكرة ${toArabicDigits(num)}`;
       container.appendChild(badge);
     });
   }

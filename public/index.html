@@ -201,6 +201,16 @@
       border: 2px solid #ef4444;
       color: #991b1b;
     }
+    .wait-alert-skipped {
+      background: #fff7ed;
+      border: 2px solid #f97316;
+      color: #9a3412;
+    }
+    .wait-alert-done {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+    }
 
     .live-indicator {
       display: flex;
@@ -301,6 +311,7 @@
     let currentServing = 0;
     let avgMinutes = 10;
     let currentDoctorStatus = 'In Clinic';
+    let skippedTickets = [];
     let eventSource = null;
     let pollInterval = null;
 
@@ -414,6 +425,7 @@
       if (data.doctorName) doctorNameEl.textContent = data.doctorName;
       if (data.averageServiceMinutes) avgMinutes = data.averageServiceMinutes;
       if (data.status) updateDoctorStatus(data.status);
+      if (Array.isArray(data.skipped)) skippedTickets = data.skipped;
 
       calculateWait();
     }
@@ -488,9 +500,16 @@
         return;
       }
 
+      // 2. Check if the patient was SKIPPED by staff (غائب / تم تخطيه)
+      if (skippedTickets.includes(ticketVal)) {
+        waitResultEl.className = 'wait-alert-skipped';
+        waitResultEl.innerHTML = `<strong>⚠️ تم تخطي تذكرتك رقم (${toArabicDigits(ticketVal)}) لعدم التواجد أثناء النداء</strong><br>قام التمريض بالنداء على رقمك ولم تكن متواجداً أمام العيادة.<br><strong>ماذا تفعل الآن؟</strong> يرجى التوجه فوراً لتمريض العيادة لإعادة استدعاء دورك.`;
+        return;
+      }
+
       const ahead = ticketVal - currentServing;
 
-      // 2. If the doctor is on a brief break
+      // 3. If the doctor is on a brief break
       if (currentDoctorStatus === 'Brief Break' || currentDoctorStatus === 'استراحة قصيرة') {
         const countText = formatPatientsCountArabic(ahead > 0 ? ahead : 0);
         waitResultEl.className = 'wait-alert-soon';
@@ -512,8 +531,9 @@
         waitResultEl.className = 'wait-alert-normal';
         waitResultEl.innerHTML = `<strong>يتبقى أمامك ${countText} في قائمة الانتظار</strong><br>الوقت المتوقع: حوالي <strong>${estTime}</strong>.<br><small style="color:var(--text-muted)">يمكنك الجلوس بالخارج، وسيتحدث رقمك على الشاشة تلقائياً لحظة بلحظة.</small>`;
       } else {
-        waitResultEl.className = 'wait-alert-normal';
-        waitResultEl.innerHTML = `تذكرة رقم (${toArabicDigits(ticketVal)}) تم النداء عليها مسبقاً.<br>إذا تأخرت عن موعدك، يرجى مراجعة تمريض العيادة.`;
+        // ahead < 0: Already passed / Completed (تم الكشف بالفعل)
+        waitResultEl.className = 'wait-alert-done';
+        waitResultEl.innerHTML = `<strong>✅ تم الانتهاء من الكشف لتذكرتك رقم (${toArabicDigits(ticketVal)})</strong><br>نتمنى لك دوام الصحة والعافية.<br><small style="color:var(--text-muted)">إذا لم تكن قد دخلت للكشف بعد، يرجى مراجعة تمريض العيادة فوراً.</small>`;
       }
     }
 

@@ -319,9 +319,34 @@
         statusSelect.value = data.status;
       }
       if (statusBadge) {
-        statusBadge.textContent = data.status;
+        let label = 'في العيادة (كشف نشط)';
+        if (data.status === 'Brief Break' || data.status === 'استراحة قصيرة') label = 'استراحة قصيرة للطبيب';
+        else if (data.status === 'Finished' || data.status === 'انتهت العيادة') label = 'انتهت العيادة';
+        statusBadge.textContent = label;
         statusBadge.dataset.status = data.status;
         statusBadge.className = 'status-badge ' + getStatusClass(data.status);
+      }
+
+      // Update 3 status buttons styling
+      const btnInClinic = document.getElementById('status-btn-in-clinic');
+      const btnBreak = document.getElementById('status-btn-break');
+      const btnFinished = document.getElementById('status-btn-finished');
+      if (btnInClinic && btnBreak && btnFinished) {
+        const isClinic = (data.status === 'In Clinic' || data.status === 'في العيادة');
+        const isBreak = (data.status === 'Brief Break' || data.status === 'استراحة قصيرة');
+        const isFinished = (data.status === 'Finished' || data.status === 'انتهت العيادة');
+
+        btnInClinic.style.background = isClinic ? '#dcfce7' : '#ffffff';
+        btnInClinic.style.borderColor = isClinic ? '#16a34a' : '#cbd5e1';
+        btnInClinic.style.color = isClinic ? '#15803d' : '#64748b';
+
+        btnBreak.style.background = isBreak ? '#fef3c7' : '#ffffff';
+        btnBreak.style.borderColor = isBreak ? '#d97706' : '#cbd5e1';
+        btnBreak.style.color = isBreak ? '#b45309' : '#64748b';
+
+        btnFinished.style.background = isFinished ? '#fee2e2' : '#ffffff';
+        btnFinished.style.borderColor = isFinished ? '#dc2626' : '#cbd5e1';
+        btnFinished.style.color = isFinished ? '#b91c1c' : '#64748b';
       }
     }
 
@@ -850,7 +875,18 @@
     const btnReset = document.getElementById('btn-reset');
     if (btnReset) btnReset.addEventListener('click', openResetModal);
 
-    // 5. Doctor Status Selector
+    // 5. Doctor Status Selector & 3-Button Toggle
+    document.querySelectorAll('.btn-status').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const targetStatus = btn.dataset.status;
+        try {
+          await apiMutate('status', { status: targetStatus });
+        } catch (err) {
+          showErrorBanner('فشل في تحديث حالة الطبيب: ' + err.message);
+        }
+      });
+    });
+
     const statusSelect = document.getElementById('status-select');
     if (statusSelect) {
       statusSelect.addEventListener('change', async () => {

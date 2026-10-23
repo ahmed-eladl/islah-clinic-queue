@@ -75,16 +75,32 @@ const usernameMap = new Map();
  */
 function loadClinicsConfig(customFilePath) {
   const filePath = customFilePath || config.clinicsConfigFile;
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`[AppConfig] Clinics configuration file not found at: ${filePath}`);
+  let parsed = null;
+
+  if (customFilePath && fs.existsSync(customFilePath)) {
+    try {
+      parsed = JSON.parse(fs.readFileSync(customFilePath, 'utf8'));
+    } catch (err) {
+      throw new Error(`[AppConfig] Malformed JSON in clinics config (${customFilePath}): ${err.message}`);
+    }
   }
 
-  const raw = fs.readFileSync(filePath, 'utf8');
-  let parsed;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (err) {
-    throw new Error(`[AppConfig] Malformed JSON in clinics config (${filePath}): ${err.message}`);
+  if (!parsed) {
+    try {
+      parsed = require('./clinics.json');
+    } catch {
+      if (fs.existsSync(filePath)) {
+        try {
+          parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        } catch (err) {
+          throw new Error(`[AppConfig] Malformed JSON in clinics config (${filePath}): ${err.message}`);
+        }
+      }
+    }
+  }
+
+  if (!parsed) {
+    throw new Error(`[AppConfig] Clinics configuration file not found at: ${filePath}`);
   }
 
   const rawList = Array.isArray(parsed) 

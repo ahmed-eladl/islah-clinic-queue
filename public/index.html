@@ -197,20 +197,6 @@
       color: #15803d;
     }
 
-    .sound-settings {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-top: 0.75rem;
-      cursor: pointer;
-    }
-    .sound-settings input {
-      cursor: pointer;
-    }
-
     .live-indicator {
       display: flex;
       align-items: center;
@@ -292,12 +278,6 @@
         <button id="check-wait-btn" class="btn-primary">تتبّع دوري</button>
       </div>
       <div id="wait-result"></div>
-
-      <!-- Silent by default: user must opt-in to sound -->
-      <label class="sound-settings">
-        <input type="checkbox" id="sound-toggle">
-        <span>تفعيل نغمة التنبيه الصوتي عند اقتراب دوري 🔔</span>
-      </label>
     </div>
 
     <div class="live-indicator">
@@ -315,37 +295,6 @@
   </div>
 
   <script>
-    // Audio Chime (Silent by default, only plays if user checks the sound box)
-    let audioCtx = null;
-    function playChimeIfEnabled() {
-      const soundEnabled = document.getElementById('sound-toggle').checked;
-      if (!soundEnabled) return;
-
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-
-        const now = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(587.33, now); // D5
-        osc.frequency.exponentialRampToValueAtTime(880, now + 0.2); // A5
-
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        osc.start(now);
-        osc.stop(now + 0.8);
-      } catch (e) {
-        console.warn('Audio note:', e);
-      }
-    }
-
     // State
     let currentServing = 0;
     let avgMinutes = 10;
@@ -455,7 +404,6 @@
         if (newNum !== oldNum && oldNum !== 0) {
           servingNumberEl.classList.add('pulse');
           setTimeout(() => servingNumberEl.classList.remove('pulse'), 300);
-          playChimeIfEnabled();
         }
       }
 
@@ -533,7 +481,6 @@
       if (ahead === 0) {
         waitResultEl.className = 'wait-alert-now';
         waitResultEl.innerHTML = `<strong>🔔 حان دورك الآن!</strong><br>يرجى الدخول فوراً إلى <strong>${clinicRoomEl.textContent}</strong> للكشف.`;
-        playChimeIfEnabled();
       } else if (ahead > 0 && ahead <= 2) {
         const estTime = formatWaitTimeArabic(ahead * avgMinutes);
         const countText = formatPatientsCountArabic(ahead);

@@ -71,9 +71,12 @@ function createApp(queueStore) {
     res.send(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Staff Controller</title></head><body><div id="controller"><button id="btn-next">+1 Next</button><button id="btn-recall">-1 Recall</button><button id="btn-skip">Skip</button><button id="btn-reset">Reset</button><div id="qr-container"></div><a id="patient-link" href="#">Link</a></div></body></html>`);
   });
 
-  // 4. API Routes Mounting
+  // 4. API Routes Mounting (support both /api/* and root /* when behind proxies)
+  const clinicRouter = createClinicRouter(queueStore);
   expressApp.use('/api/auth', authRouter);
-  expressApp.use('/api/clinics', createClinicRouter(queueStore));
+  expressApp.use('/auth', authRouter);
+  expressApp.use('/api/clinics', clinicRouter);
+  expressApp.use('/clinics', clinicRouter);
 
   // 5. 404 Route Catch-All
   expressApp.use((req, res) => {

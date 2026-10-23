@@ -196,6 +196,11 @@
       border: 2px solid #22c55e;
       color: #15803d;
     }
+    .wait-alert-finished {
+      background: #fef2f2;
+      border: 2px solid #ef4444;
+      color: #991b1b;
+    }
 
     .live-indicator {
       display: flex;
@@ -298,6 +303,7 @@
     // State
     let currentServing = 0;
     let avgMinutes = 10;
+    let currentDoctorStatus = 'In Clinic';
     let eventSource = null;
     let pollInterval = null;
 
@@ -416,6 +422,7 @@
     }
 
     function updateDoctorStatus(status) {
+      currentDoctorStatus = status;
       statusBadgeEl.className = 'status-badge';
       if (status === 'In Clinic' || status === 'في العيادة') {
         statusBadgeEl.textContent = 'في العيادة (كشف نشط)';
@@ -476,7 +483,23 @@
       }
 
       waitResultEl.style.display = 'block';
+
+      // 1. If the clinic has finished for today, do NOT calculate wait hours!
+      if (currentDoctorStatus === 'Finished' || currentDoctorStatus === 'انتهت العيادة') {
+        waitResultEl.className = 'wait-alert-finished';
+        waitResultEl.innerHTML = `<strong>⛔ عذراً، انتهت فترة كشوفات العيادة لهذا اليوم</strong><br>العيادة مغلقة حالياً. لتذكرتك رقم (<strong>${toArabicDigits(ticketVal)}</strong>)، يرجى مراجعة قسم الاستقبال.`;
+        return;
+      }
+
       const ahead = ticketVal - currentServing;
+
+      // 2. If the doctor is on a brief break
+      if (currentDoctorStatus === 'Brief Break' || currentDoctorStatus === 'استراحة قصيرة') {
+        const countText = formatPatientsCountArabic(ahead > 0 ? ahead : 0);
+        waitResultEl.className = 'wait-alert-soon';
+        waitResultEl.innerHTML = `<strong>🟡 الطبيب في استراحة قصيرة حالياً</strong><br>يتبقى أمامك <strong>${countText}</strong>.<br><small style="color:var(--text-muted)">الانتظار متوقف مؤقتاً وسيعاود الطبيب استكمال الكشف بعد قليل.</small>`;
+        return;
+      }
 
       if (ahead === 0) {
         waitResultEl.className = 'wait-alert-now';

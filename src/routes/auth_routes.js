@@ -46,7 +46,9 @@ router.post('/login', (req, res) => {
     token,
     clinic: {
       id: clinic.id,
-      name: clinic.name
+      name: clinic.name,
+      room: clinic.room || 'غرفة 101',
+      doctorName: clinic.doctorName || ''
     }
   });
 });

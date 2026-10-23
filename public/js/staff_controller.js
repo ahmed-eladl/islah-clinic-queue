@@ -138,9 +138,9 @@
     const docEl = document.getElementById('doctor-name');
     const controllerEl = document.getElementById('controller');
 
-    if (nameEl) nameEl.textContent = clinic.name || 'Clinic Queue';
-    if (idEl) idEl.textContent = clinic.id || '';
-    if (roomEl) roomEl.textContent = clinic.room || 'Room 101';
+    if (nameEl) nameEl.textContent = clinic.name || 'عيادة كشف';
+    if (idEl) idEl.style.display = 'none';
+    if (roomEl) roomEl.textContent = toArabicDigits(clinic.room || 'غرفة ١٠١');
     if (docEl) docEl.textContent = clinic.doctorName || '';
     if (controllerEl) controllerEl.dataset.clinicId = clinic.id || '';
 
@@ -152,9 +152,9 @@
     const printPlacard = document.getElementById('print-placard');
 
     if (placardClinicName) placardClinicName.textContent = clinic.name || '';
-    if (placardRoom) placardRoom.textContent = clinic.room || 'Room 101';
+    if (placardRoom) placardRoom.textContent = toArabicDigits(clinic.room || 'غرفة ١٠١');
     if (onscreenClinicName) onscreenClinicName.textContent = clinic.name || '';
-    if (onscreenRoom) onscreenRoom.textContent = clinic.room || 'Room 101';
+    if (onscreenRoom) onscreenRoom.textContent = toArabicDigits(clinic.room || 'غرفة ١٠١');
     if (printPlacard) printPlacard.dataset.clinicId = clinic.id || '';
   }
 
@@ -267,7 +267,7 @@
     es.onopen = () => {
       if (statusEl) {
         statusEl.className = 'conn-badge conn-online';
-        if (statusText) statusText.textContent = 'Connected';
+        if (statusText) statusText.textContent = 'متصل مباشرة';
       }
     };
 
@@ -283,7 +283,7 @@
     es.onerror = () => {
       if (statusEl) {
         statusEl.className = 'conn-badge conn-reconnecting';
-        if (statusText) statusText.textContent = 'Reconnecting...';
+        if (statusText) statusText.textContent = 'جارٍ الاتصال...';
       }
     };
 
@@ -554,7 +554,7 @@
 
   // --- Dedicated Standalone Print Placard Controller ---
   function handlePrintPlacard() {
-    const clinic = State.clinic || getStoredProfile() || { id: 'pediatrics', name: 'عيادة الأطفال وحديثي الولادة', room: 'عيادة 101' };
+    const clinic = State.clinic || getStoredProfile() || { id: 'pediatrics', name: 'عيادة الأطفال وحديثي الولادة', room: 'غرفة 101' };
     const origin = window.location.origin || `${window.location.protocol}//${window.location.host}`;
     const patientUrl = `${origin}/?clinic=${encodeURIComponent(clinic.id)}`;
     

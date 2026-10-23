@@ -4,7 +4,7 @@
     {
       "id": "pediatrics",
       "name": "عيادة الأطفال وحديثي الولادة",
-      "room": "عيادة 101",
+      "room": "غرفة 101",
       "doctorName": "استشاري طب الأطفال",
       "staffUsername": "pediatrics",
       "salt": "c2d1c137d2634b659132272bbbdc2901",
@@ -14,7 +14,7 @@
     {
       "id": "cardiology",
       "name": "عيادة القلب والأوعية الدموية",
-      "room": "عيادة 204",
+      "room": "غرفة 204",
       "doctorName": "استشاري أمراض القلب",
       "staffUsername": "cardiology",
       "salt": "043c6f3c63073a73a6f3b8dab327e770",
@@ -24,7 +24,7 @@
     {
       "id": "general",
       "name": "العيادة العامة والباطنة",
-      "room": "عيادة 102",
+      "room": "غرفة 102",
       "doctorName": "أخصائي الباطنة العامة",
       "staffUsername": "general",
       "salt": "1c53d5047ac21c1ff801f6ee8f586cdd",
@@ -34,7 +34,7 @@
     {
       "id": "dental",
       "name": "عيادة طب وجراحة الأسنان",
-      "room": "عيادة 305",
+      "room": "غرفة 305",
       "doctorName": "أخصائي طب وجراحة الأسنان",
       "staffUsername": "dental",
       "salt": "ee07c69fb445abaca0cc09635e15aa7e",

@@ -644,7 +644,7 @@
           <div class="clinic-name">${clinic.name || 'عيادة كشف'}</div>
           <div class="clinic-room">${clinic.room ? clinic.room + ' &bull; ' : ''}${clinic.doctorName || ''}</div>
           
-          <div class="instruction">امسح الرمز بكاميرا جوالك لمتابعة دورك مباشرة 📱</div>
+          <div class="instruction">امسح الرمز بكاميرا جوالك لمتابعة دورك مباشرة</div>
           <div class="sub-instruction">
             تابع رقمك لحظة بلحظة على هاتفك من أي مكان خارج المستشفى أو بالمقهى<br>
             دون الحاجة للجلوس والانتظار في الزحام.
@@ -652,10 +652,6 @@
 
           <div class="qr-box">
             ${qrSvg}
-          </div>
-
-          <div>
-            <span class="url-box">${patientUrl}</span>
           </div>
 
           <div class="footer">

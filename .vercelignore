@@ -1,0 +1,7 @@
+tests/
+.git/
+.agents/
+PROJECT.md
+README.md
+TEST_INFRA.md
+TEST_READY.md

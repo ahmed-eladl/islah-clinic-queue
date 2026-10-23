@@ -1,9 +1,14 @@
 {
   "version": 2,
+  "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/api",
-      "destination": "/api/index.js"
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/staff",
+      "destination": "/staff.html"
     },
     {
       "source": "/api/(.*)",

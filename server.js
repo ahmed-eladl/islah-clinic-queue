@@ -242,9 +242,20 @@ if (require.main === module) {
   });
 }
 
-module.exports = {
-  app,
-  createApp,
-  start,
-  stop
-};
+// Serverless fallback request listener if Vercel attempts to execute server.js directly
+function defaultHandler(req, res) {
+  if (!app) {
+    const primaryAdapter = createPersistenceAdapter({ dataFile: config.dataFile });
+    queueStoreInstance = new QueueStore(config.dataFile, primaryAdapter);
+    queueStoreInstance.init(getAllClinics()).catch(console.error);
+    app = createApp(queueStoreInstance);
+  }
+  return app(req, res);
+}
+
+defaultHandler.app = app;
+defaultHandler.createApp = createApp;
+defaultHandler.start = start;
+defaultHandler.stop = stop;
+
+module.exports = defaultHandler;

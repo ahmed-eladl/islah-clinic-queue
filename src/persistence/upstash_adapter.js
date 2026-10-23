@@ -10,13 +10,32 @@ class UpstashRedisAdapter {
    * @param {string} [options.url] - Upstash REST URL or KV_REST_API_URL
    * @param {string} [options.token] - Upstash REST Token or KV_REST_API_TOKEN
    * @param {string} [options.key='islah_clinic_queues'] - Storage key
-   * @param {number} [options.cacheTtlMs=1200] - Cache TTL in ms to optimize free tier quotas
+   * @param {number} [options.cacheTtlMs=400] - Cache TTL in ms to optimize free tier quotas
    */
   constructor(options = {}) {
-    this.url = (options.url || process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '').replace(/\/+$/, '');
-    this.token = options.token || process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
+    let resolvedUrl = options.url || process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.STORAGE_REST_API_URL || process.env.STORAGE_URL || '';
+    let resolvedToken = options.token || process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.STORAGE_REST_API_TOKEN || process.env.STORAGE_TOKEN || '';
+
+    // Auto-scan environment variables for any custom prefix assigned by Vercel Integration
+    if (!resolvedUrl || !resolvedToken) {
+      for (const [k, v] of Object.entries(process.env)) {
+        if (!v) continue;
+        if (k.endsWith('_REST_API_URL') || k.endsWith('_URL')) {
+          const prefix = k.replace(/_REST_API_URL$/, '').replace(/_URL$/, '');
+          const tokenVal = process.env[`${prefix}_REST_API_TOKEN`] || process.env[`${prefix}_TOKEN`];
+          if (tokenVal) {
+            resolvedUrl = v;
+            resolvedToken = tokenVal;
+            break;
+          }
+        }
+      }
+    }
+
+    this.url = (resolvedUrl || '').replace(/\/+$/, '');
+    this.token = resolvedToken || '';
     this.key = options.key || 'islah_clinic_queues';
-    this.cacheTtlMs = options.cacheTtlMs || 1200;
+    this.cacheTtlMs = options.cacheTtlMs || 400;
     this.cachedData = null;
     this.lastFetchTime = 0;
     this.isCloud = true;

@@ -50,15 +50,22 @@ function createAdminRouter(queueStore) {
   router.post('/clinics', async (req, res) => {
     const { id, name, room, doctorName, staffUsername, password, averageServiceMinutes } = req.body || {};
 
-    if (!id || typeof id !== 'string' || !id.trim()) {
-      return res.status(400).json({ error: 'معرف العيادة (ID) مطلوب باللغة الإنجليزية' });
-    }
     if (!name || typeof name !== 'string' || !name.trim()) {
       return res.status(400).json({ error: 'اسم العيادة بالعربية مطلوب' });
     }
 
     try {
-      const cleanId = id.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      // Auto-generate ID if not provided (admin doesn't need to specify technical IDs)
+      let cleanId = id ? String(id).trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') : '';
+      if (!cleanId) {
+        if (staffUsername && typeof staffUsername === 'string' && staffUsername.trim()) {
+          cleanId = staffUsername.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+        }
+        if (!cleanId) {
+          cleanId = 'clinic_' + Date.now().toString(36);
+        }
+      }
+
       const savedClinic = upsertClinic({
         id: cleanId,
         name: name.trim(),

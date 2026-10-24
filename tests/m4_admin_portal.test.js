@@ -140,4 +140,35 @@ describe('Admin Portal & Clinic Management Suite', () => {
     const check = getClinicById('dermatology');
     assert.equal(check, undefined);
   });
+
+  it('should auto-generate ID from staffUsername when id is omitted and accept optional doctorName', async () => {
+    const autoClinic = {
+      name: 'عيادة التغذية العلاجية',
+      room: 'غرفة ١٠٨',
+      staffUsername: 'nutrition_nurse',
+      password: 'nutriPass123',
+      averageServiceMinutes: 15
+    };
+
+    const res = await fetch(`${baseUrl}/api/admin/clinics`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(autoClinic)
+    });
+
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.success, true);
+    assert.equal(data.clinic.id, 'nutrition_nurse');
+    assert.equal(data.clinic.doctorName, '');
+
+    // Cleanup
+    await fetch(`${baseUrl}/api/admin/clinics/nutrition_nurse`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${adminToken}` }
+    });
+  });
 });

@@ -35,8 +35,8 @@
 
     /* Login Card */
     .login-card {
-      max-width: 420px;
-      margin: 5rem auto;
+      max-width: 440px;
+      margin: 4.5rem auto;
       background: #ffffff;
       border: 1px solid var(--border);
       border-radius: 1.25rem;
@@ -45,10 +45,24 @@
       text-align: center;
     }
 
+    .login-logo-container {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.85rem;
+      padding: 0.75rem 1.25rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
     .login-logo {
-      max-height: 64px;
+      height: 52px;
       width: auto;
-      margin-bottom: 1rem;
+      max-width: 240px;
+      object-fit: contain;
+      display: block;
     }
 
     .form-control {
@@ -92,13 +106,31 @@
       background: #ffffff;
       border: 1px solid var(--border);
       border-radius: 1.25rem;
-      padding: 1.25rem 1.5rem;
+      padding: 1rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 1rem;
       margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header-logo {
+      height: 48px;
+      width: auto;
+      max-width: 175px;
+      object-fit: contain;
+      display: block;
+      padding-left: 1rem;
+      border-left: 2px solid #e2e8f0;
+      flex-shrink: 0;
     }
 
     .clinic-grid {
@@ -149,8 +181,11 @@
     }
 
     .badge-doctor {
-      color: #64748b;
+      background: #f1f5f9;
+      color: #475569;
       font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 0.375rem;
     }
 
     .card-actions {
@@ -210,9 +245,11 @@
     
     <!-- 1. Login View -->
     <div id="login-view" class="login-card">
-      <img src="/images/islah-medical-logo.png" alt="مجمع الإصلاح الطبي" class="login-logo" onerror="this.style.display='none'">
-      <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0 0 0.5rem 0; color: #0f766e;">مجمع الإصلاح الطبي</h2>
-      <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 1.5rem;">لوحة إدارة وتنظيم العيادات</p>
+      <div class="login-logo-container">
+        <img src="/images/islah-medical-logo.png" alt="مجمع الإصلاح الطبي" class="login-logo" onerror="this.style.display='none'">
+      </div>
+      <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0 0 0.35rem 0; color: #0f172a;">لوحة إدارة العيادات</h2>
+      <p style="color: #64748b; font-size: 0.95rem; margin: 0 0 1.5rem 0;">تسجيل الدخول للنظام الإداري</p>
       
       <form id="admin-login-form">
         <div style="text-align: right;">
@@ -227,11 +264,11 @@
     <!-- 2. Dashboard View -->
     <div id="dashboard-view" hidden>
       <header class="dashboard-header">
-        <div style="display: flex; align-items: center; gap: 0.85rem;">
-          <img src="/images/islah-medical-logo.png" alt="مجمع الإصلاح الطبي" style="max-height: 48px; width: auto;" onerror="this.style.display='none'">
+        <div class="header-branding">
+          <img src="/images/islah-medical-logo.png" alt="مجمع الإصلاح الطبي" class="header-logo" onerror="this.style.display='none'">
           <div>
-            <div style="font-size: 0.8rem; font-weight: 700; color: #0f766e;">مجمع الإصلاح الطبي</div>
-            <h1 style="font-size: 1.35rem; font-weight: 900; margin: 0;">إدارة عيادات المجمع الطبي</h1>
+            <h1 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: #0f172a;">لوحة إدارة وتنظيم العيادات</h1>
+            <div style="font-size: 0.85rem; color: #64748b; margin-top: 0.15rem;">التحكم في بيانات العيادات وحسابات التمريض</div>
           </div>
         </div>
 
@@ -260,41 +297,40 @@
         <h3 id="modal-title" style="margin: 0 0 1.25rem 0; font-size: 1.25rem; font-weight: 800; color: #0f766e;">إضافة عيادة جديدة</h3>
         
         <form id="clinic-form">
-          <div style="margin-bottom: 0.85rem;">
-            <label style="font-weight: 600; font-size: 0.85rem;">معرف العيادة بالإنجليزية (Clinic ID):</label>
-            <input type="text" id="modal-id" class="form-control" placeholder="مثال: orthopedics أو pediatrics" required dir="ltr">
-            <small style="color: #64748b; font-size: 0.75rem;">حروف إنجليزية صغيرة بدون مسافات (يستخدم للربط والـ URL).</small>
-          </div>
+          <!-- Hidden Clinic ID: automatically managed by the system -->
+          <input type="hidden" id="modal-id">
 
           <div style="margin-bottom: 0.85rem;">
-            <label style="font-weight: 600; font-size: 0.85rem;">اسم العيادة بالعربية:</label>
+            <label for="modal-name" style="font-weight: 600; font-size: 0.85rem;">اسم العيادة:</label>
             <input type="text" id="modal-name" class="form-control" placeholder="مثال: عيادة العظام والمفاصل" required>
           </div>
 
           <div style="display: flex; gap: 0.75rem;">
             <div style="flex: 1; margin-bottom: 0.85rem;">
-              <label style="font-weight: 600; font-size: 0.85rem;">رقم / مكان الغرفة:</label>
+              <label for="modal-room" style="font-weight: 600; font-size: 0.85rem;">رقم / مكان الغرفة:</label>
               <input type="text" id="modal-room" class="form-control" placeholder="مثال: غرفة ١٠٥" required>
             </div>
             <div style="flex: 1; margin-bottom: 0.85rem;">
-              <label style="font-weight: 600; font-size: 0.85rem;">متوسط وقت الكشف (دقائق):</label>
+              <label for="modal-minutes" style="font-weight: 600; font-size: 0.85rem;">متوسط وقت الكشف (دقائق):</label>
               <input type="number" id="modal-minutes" class="form-control" value="10" min="1" max="60" required>
             </div>
           </div>
 
           <div style="margin-bottom: 0.85rem;">
-            <label style="font-weight: 600; font-size: 0.85rem;">اسم الطبيب المعالج / الصفة:</label>
-            <input type="text" id="modal-doctor" class="form-control" placeholder="مثال: استشاري جراحة العظام">
+            <label for="modal-doctor" style="font-weight: 600; font-size: 0.85rem;">اسم الطبيب (اختياري):</label>
+            <input type="text" id="modal-doctor" class="form-control" placeholder="مثال: د. محمد أحمد أو استشاري الأطفال (أو اتركه فارغاً)">
           </div>
 
           <div style="margin-bottom: 0.85rem;">
-            <label style="font-weight: 600; font-size: 0.85rem;">اسم مستخدم تمريض العيادة:</label>
-            <input type="text" id="modal-username" class="form-control" placeholder="مثال: orthopedics" dir="ltr">
+            <label for="modal-username" style="font-weight: 600; font-size: 0.85rem;">اسم مستخدم الدخول للتمريض (باللغة الإنجليزية):</label>
+            <input type="text" id="modal-username" class="form-control" placeholder="مثال: ortho_nurse" dir="ltr" required>
+            <small style="color: #64748b; font-size: 0.75rem;">اسم المستخدم الذي تسجل به ممرضة العيادة للدخول للوحة التحكم.</small>
           </div>
 
           <div style="margin-bottom: 1.5rem;">
-            <label style="font-weight: 600; font-size: 0.85rem;">كلمة مرور التمريض (للدخول للوحة التحكم):</label>
-            <input type="password" id="modal-password" class="form-control" placeholder="أدخل كلمة المرور الجديدة (أو اتركها فارغة عند التعديل)" dir="ltr">
+            <label for="modal-password" style="font-weight: 600; font-size: 0.85rem;">كلمة مرور التمريض (للدخول للوحة التحكم):</label>
+            <input type="password" id="modal-password" class="form-control" placeholder="أدخل كلمة المرور الجديدة" dir="ltr">
+            <small id="modal-password-hint" style="color: #64748b; font-size: 0.75rem; display: none;">اترك الحقل فارغاً إذا كنت لا ترغب بتغيير كلمة المرور السابقة.</small>
           </div>
 
           <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
@@ -332,6 +368,7 @@
     const modalTitle = document.getElementById('modal-title');
     const clinicForm = document.getElementById('clinic-form');
     const toast = document.getElementById('toast');
+    const modalPasswordHint = document.getElementById('modal-password-hint');
 
     // Init View
     if (adminToken) {
@@ -421,11 +458,10 @@
             <h3 class="card-title">${c.name}</h3>
             <div class="card-meta-row">
               <span class="badge-room">${toArabicDigits(c.room || 'غرفة ١٠١')}</span>
-              <span class="badge-doctor">${c.doctorName || 'طبيب العيادة'}</span>
+              ${c.doctorName ? `<span class="badge-doctor">👨‍⚕️ ${c.doctorName}</span>` : ''}
             </div>
-            <div style="font-size: 0.85rem; color: #475569; margin-top: 0.5rem; line-height: 1.6;">
-              <div><strong>معرف العيادة:</strong> <code style="direction: ltr; display: inline-block;">${c.id}</code></div>
-              <div><strong>اسم المستخدم:</strong> <code style="direction: ltr; display: inline-block;">${c.staffUsername || c.id}</code></div>
+            <div style="font-size: 0.85rem; color: #475569; margin-top: 0.5rem; line-height: 1.7;">
+              <div><strong>اسم مستخدم التمريض:</strong> <code style="direction: ltr; display: inline-block;">${c.staffUsername || c.id}</code></div>
               <div><strong>متوسط وقت الكشف:</strong> ${toArabicDigits(c.averageServiceMinutes || 10)} دقيقة</div>
               <div style="margin-top: 0.35rem; color: #0f766e; font-weight: 700;">الرقم الحالي قيد الكشف: (${toArabicDigits(c.currentServing || 0)})</div>
             </div>
@@ -442,13 +478,14 @@
     document.getElementById('btn-open-create').addEventListener('click', () => {
       modalTitle.textContent = '➕ إضافة عيادة جديدة';
       document.getElementById('modal-id').value = '';
-      document.getElementById('modal-id').disabled = false;
       document.getElementById('modal-name').value = '';
       document.getElementById('modal-room').value = 'غرفة ١٠١';
       document.getElementById('modal-doctor').value = '';
       document.getElementById('modal-username').value = '';
       document.getElementById('modal-password').value = '';
-      document.getElementById('modal-password').placeholder = 'أدخل كلمة مرور الدخول للعيادة';
+      document.getElementById('modal-password').required = true;
+      document.getElementById('modal-password').placeholder = 'أدخل كلمة مرور دخول التمريض';
+      modalPasswordHint.style.display = 'none';
       document.getElementById('modal-minutes').value = '10';
       clinicModal.hidden = false;
     });
@@ -460,13 +497,14 @@
 
       modalTitle.textContent = `✏️ تعديل بيانات: ${clinic.name}`;
       document.getElementById('modal-id').value = clinic.id;
-      document.getElementById('modal-id').disabled = true;
       document.getElementById('modal-name').value = clinic.name;
       document.getElementById('modal-room').value = clinic.room;
       document.getElementById('modal-doctor').value = clinic.doctorName || '';
       document.getElementById('modal-username').value = clinic.staffUsername || clinic.id;
       document.getElementById('modal-password').value = '';
-      document.getElementById('modal-password').placeholder = 'اتركها فارغة للإبقاء على كلمة المرور السابقة';
+      document.getElementById('modal-password').required = false;
+      document.getElementById('modal-password').placeholder = 'اتركها فارغة إذا لم ترغب بتغييرها';
+      modalPasswordHint.style.display = 'block';
       document.getElementById('modal-minutes').value = clinic.averageServiceMinutes || 10;
       clinicModal.hidden = false;
     };
@@ -482,12 +520,13 @@
       const saveBtn = document.getElementById('btn-save-clinic');
       saveBtn.disabled = true;
 
+      const modalIdVal = document.getElementById('modal-id').value;
       const payload = {
-        id: document.getElementById('modal-id').value,
+        id: modalIdVal || undefined,
         name: document.getElementById('modal-name').value,
         room: document.getElementById('modal-room').value,
         doctorName: document.getElementById('modal-doctor').value,
-        staffUsername: document.getElementById('modal-username').value || document.getElementById('modal-id').value,
+        staffUsername: document.getElementById('modal-username').value || undefined,
         password: document.getElementById('modal-password').value || undefined,
         averageServiceMinutes: parseInt(document.getElementById('modal-minutes').value, 10) || 10
       };
@@ -517,7 +556,9 @@
 
     // Delete Clinic
     window.handleDeleteClinic = async function(clinicId) {
-      if (!confirm(`هل أنت متأكد من رغبتك في حذف العيادة '${clinicId}' نهائياً؟`)) return;
+      const clinic = clinicsData.find(c => c.id === clinicId);
+      const displayName = clinic ? clinic.name : clinicId;
+      if (!confirm(`هل أنت متأكد من رغبتك في حذف '${displayName}' نهائياً؟`)) return;
 
       try {
         const res = await fetch(`/api/admin/clinics/${encodeURIComponent(clinicId)}`, {

@@ -91,12 +91,23 @@ function createApp(queueStore) {
     res.send(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Staff Controller</title></head><body><div id="controller"><button id="btn-next">+1 Next</button><button id="btn-recall">-1 Recall</button><button id="btn-skip">Skip</button><button id="btn-reset">Reset</button><div id="qr-container"></div><a id="patient-link" href="#">Link</a></div></body></html>`);
   });
 
+  expressApp.get('/admin', (req, res) => {
+    const adminPath = path.join(publicDir, 'admin.html');
+    if (fs.existsSync(adminPath)) return res.sendFile(adminPath);
+    res.redirect('/admin.html');
+  });
+
   // 4. API Routes Mounting (support both /api/* and root /* when behind proxies)
+  const { createAdminRouter } = require('./src/routes/admin_routes.js');
   const clinicRouter = createClinicRouter(queueStore);
+  const adminRouter = createAdminRouter(queueStore);
+
   expressApp.use('/api/auth', authRouter);
   expressApp.use('/auth', authRouter);
   expressApp.use('/api/clinics', clinicRouter);
   expressApp.use('/clinics', clinicRouter);
+  expressApp.use('/api/admin', adminRouter);
+  expressApp.use('/admin-api', adminRouter);
 
   // 5. 404 Route Catch-All
   expressApp.use((req, res) => {

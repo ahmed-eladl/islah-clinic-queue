@@ -352,9 +352,20 @@ class QueueStore {
   }
 
   /**
+   * Remove clinic from store
+   * @param {string} clinicId 
+   */
+  removeClinic(clinicId) {
+    if (!clinicId) return false;
+    const id = clinicId.toLowerCase().trim();
+    return this.clinics.delete(id);
+  }
+
+  /**
    * Export serializable snapshot of all clinic queues
    */
   exportSnapshot() {
+    const { getAllClinics } = require('../config/app_config.js');
     const clinicsObj = {};
     for (const [id, model] of this.clinics.entries()) {
       clinicsObj[id] = model.toJSON();
@@ -363,7 +374,8 @@ class QueueStore {
       version: 1,
       lastUpdated: new Date().toISOString(),
       exportedAt: new Date().toISOString(),
-      clinics: clinicsObj
+      clinics: clinicsObj,
+      clinicsRegistry: getAllClinics()
     };
   }
 
@@ -373,6 +385,13 @@ class QueueStore {
   importSnapshot(snapshot) {
     if (!snapshot || typeof snapshot !== 'object' || !snapshot.clinics) {
       throw new DomainValidationError('Invalid snapshot format');
+    }
+
+    if (Array.isArray(snapshot.clinicsRegistry) && snapshot.clinicsRegistry.length > 0) {
+      try {
+        const { setClinicsList } = require('../config/app_config.js');
+        setClinicsList(snapshot.clinicsRegistry);
+      } catch (e) {}
     }
 
     const newMap = new Map();

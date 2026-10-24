@@ -333,6 +333,29 @@
       clinicSelect.value = initialClinic;
     }
 
+    // Dynamic Clinics Discovery from Server (allows Admin additions/edits)
+    async function loadDynamicClinics() {
+      try {
+        const res = await fetch('/api/clinics?t=' + Date.now(), { cache: 'no-store' });
+        if (res.ok) {
+          const list = await res.json();
+          if (Array.isArray(list) && list.length > 0) {
+            const currentSelected = clinicSelect.value;
+            clinicSelect.innerHTML = list.map(c => `
+              <option value="${c.id}">${c.name} (${toArabicDigits(c.room || 'غرفة ١٠١')})</option>
+            `).join('');
+
+            if (initialClinic && list.some(c => c.id === initialClinic)) {
+              clinicSelect.value = initialClinic;
+            } else if (list.some(c => c.id === currentSelected)) {
+              clinicSelect.value = currentSelected;
+            }
+          }
+        }
+      } catch (e) {}
+    }
+    loadDynamicClinics();
+
     // Connect to Real-time Stream + Fallback Poller
     function connectToClinic(clinicId) {
       if (eventSource) {

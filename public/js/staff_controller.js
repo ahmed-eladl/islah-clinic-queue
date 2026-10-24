@@ -606,7 +606,7 @@
 
   // --- Dedicated Standalone Print Placard Controller ---
   function handlePrintPlacard() {
-    const clinic = State.clinic || getStoredProfile() || { id: 'pediatrics', name: 'عيادة الأطفال وحديثي الولادة', room: 'غرفة 101' };
+    const clinic = State.clinic || getStoredProfile() || { id: 'pediatrics', name: 'عيادة الأطفال وحديثي الولادة', room: 'غرفة ١٠١' };
     const origin = window.location.origin || `${window.location.protocol}//${window.location.host}`;
     const patientUrl = `${origin}/?clinic=${encodeURIComponent(clinic.id)}`;
     
@@ -719,7 +719,7 @@
           <img src="${origin}/images/islah-medical-logo.png" alt="مجمع الإصلاح الطبي" class="logo" onerror="this.style.display='none'">
           <div class="hospital-title">مجمع الإصلاح الطبي</div>
           <div class="clinic-name">${clinic.name || 'عيادة كشف'}</div>
-          <div class="clinic-room">${clinic.room ? clinic.room + ' &bull; ' : ''}${clinic.doctorName || ''}</div>
+          <div class="clinic-room">${clinic.room ? toArabicDigits(clinic.room) + ' &bull; ' : ''}${clinic.doctorName || ''}</div>
           
           <div class="instruction">امسح الرمز بكاميرا جوالك لمتابعة دورك مباشرة</div>
           <div class="sub-instruction">
@@ -732,7 +732,7 @@
           </div>
 
           <div class="footer">
-            مجمع الإصلاح الطبي - المنصورة &bull; هاتف واستفسار: 01000620720
+            مجمع الإصلاح الطبي - المنصورة &bull; هاتف واستفسار: ٠١٠٠٠٦٢٠٧٢٠
           </div>
         </div>
         <script>
@@ -891,7 +891,7 @@
       });
     }
 
-    // 2. Clinic Select auto-sync username
+    // 2. Clinic Select auto-sync username & dynamic discovery
     const clinicSelect = document.getElementById('clinic-select') || document.getElementById('login-clinic-id');
     const usernameInput = document.getElementById('username');
     if (clinicSelect && usernameInput) {
@@ -900,6 +900,21 @@
           usernameInput.value = clinicSelect.value;
         }
       });
+
+      // Load dynamic clinics configured by Admin
+      fetch('/api/clinics?t=' + Date.now(), { cache: 'no-store' })
+        .then(res => res.json())
+        .then(list => {
+          if (Array.isArray(list) && list.length > 0) {
+            const currentVal = clinicSelect.value;
+            clinicSelect.innerHTML = '<option value="" disabled selected>-- اختر محطة العيادة --</option>' +
+              list.map(c => `<option value="${c.id}">${c.name} (${toArabicDigits(c.room || 'غرفة ١٠١')})</option>`).join('');
+            if (currentVal && list.some(c => c.id === currentVal)) {
+              clinicSelect.value = currentVal;
+            }
+          }
+        })
+        .catch(() => {});
     }
 
     // 3. Logout Button

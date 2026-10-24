@@ -216,6 +216,83 @@ function verifyClinicCredentials(identifier, password) {
   return isValid ? sanitizeClinic(clinic) : null;
 }
 
+/**
+ * Upsert clinic into runtime registry
+ * @param {object} clinicData 
+ */
+function upsertClinic(clinicData) {
+  if (!clinicData || !clinicData.id) {
+    throw new Error('Clinic ID is required');
+  }
+
+  const id = clinicData.id.toLowerCase().trim();
+  const existing = clinicMap.get(id);
+
+  let salt = existing ? existing.salt : crypto.randomBytes(16).toString('hex');
+  let passwordHash = existing ? existing.passwordHash : '';
+
+  if (clinicData.password) {
+    salt = crypto.randomBytes(16).toString('hex');
+    passwordHash = hashPassword(clinicData.password, salt);
+  } else if (!passwordHash) {
+    salt = crypto.randomBytes(16).toString('hex');
+    passwordHash = hashPassword(`${id}123`, salt);
+  }
+
+  const normalized = Object.freeze({
+    id,
+    name: (clinicData.name || (existing ? existing.name : id)).trim(),
+    room: (clinicData.room || (existing ? existing.room : 'غرفة ١٠١')).trim(),
+    doctorName: (clinicData.doctorName || (existing ? existing.doctorName : '')).trim(),
+    staffUsername: (clinicData.staffUsername || (existing ? existing.staffUsername : id)).toLowerCase().trim(),
+    salt,
+    passwordHash,
+    averageServiceMinutes: parseInt(clinicData.averageServiceMinutes, 10) || (existing ? existing.averageServiceMinutes : 10)
+  });
+
+  const existingIdx = clinicList.findIndex(c => c.id === id);
+  if (existingIdx >= 0) {
+    clinicList[existingIdx] = normalized;
+  } else {
+    clinicList.push(normalized);
+  }
+
+  clinicMap.set(id, normalized);
+  usernameMap.set(normalized.staffUsername, normalized);
+  return normalized;
+}
+
+/**
+ * Delete clinic from runtime registry
+ * @param {string} clinicId 
+ */
+function deleteClinic(clinicId) {
+  if (!clinicId) return false;
+  const id = clinicId.toLowerCase().trim();
+  const existing = clinicMap.get(id);
+  if (!existing) return false;
+
+  clinicList = clinicList.filter(c => c.id !== id);
+  clinicMap.delete(id);
+  usernameMap.delete(existing.staffUsername);
+  return true;
+}
+
+/**
+ * Bulk set clinics list (used when syncing from cloud persistence snapshot)
+ */
+function setClinicsList(newList) {
+  if (!Array.isArray(newList)) return;
+  clinicList = [];
+  clinicMap.clear();
+  usernameMap.clear();
+  for (const c of newList) {
+    if (c && c.id) {
+      upsertClinic(c);
+    }
+  }
+}
+
 module.exports = {
   config,
   hashPassword,
@@ -227,5 +304,8 @@ module.exports = {
   getPublicClinics,
   getPublicClinicById,
   verifyClinicCredentials,
-  sanitizeClinic
+  sanitizeClinic,
+  upsertClinic,
+  deleteClinic,
+  setClinicsList
 };

@@ -77,6 +77,33 @@ function authorizeClinic(req, res, next) {
 }
 
 /**
+ * Express middleware to authenticate admin bearer tokens
+ */
+function authenticateAdmin(req, res, next) {
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  const token = extractBearerToken(authHeader);
+
+  if (!token) {
+    res.setHeader('WWW-Authenticate', 'Bearer error="invalid_token", error_description="Missing or malformed Authorization header"');
+    return res.status(401).json({
+      error: 'Unauthorized',
+      message: 'Admin authentication required.'
+    });
+  }
+
+  const payload = verifyToken(token);
+  if (!payload || payload.role !== 'admin') {
+    return res.status(403).json({
+      error: 'Forbidden',
+      message: 'Access denied: Admin privileges required.'
+    });
+  }
+
+  req.auth = payload;
+  next();
+}
+
+/**
  * Composed convenience middleware combining authentication and clinic authorization
  */
 const requireClinicStaff = [authenticateStaff, authorizeClinic];
@@ -84,5 +111,6 @@ const requireClinicStaff = [authenticateStaff, authorizeClinic];
 module.exports = {
   authenticateStaff,
   authorizeClinic,
+  authenticateAdmin,
   requireClinicStaff
 };

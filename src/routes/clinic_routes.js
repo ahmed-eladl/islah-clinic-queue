@@ -132,6 +132,8 @@ function createClinicRouter(queueStore) {
     const summaries = all.map(c => ({
       id: c.clinicId || c.id,
       name: c.name,
+      room: c.room || '',
+      doctorName: c.doctorName || '',
       currentServing: c.currentServing,
       status: c.status
     }));
